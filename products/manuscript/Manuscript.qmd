@@ -129,7 +129,7 @@ Note the loading of the data providing a **relative** path using the `../../` no
 #| label: tbl-summarytable
 #| tbl-cap: "Data summary table."
 #| echo: FALSE
-resulttable=readRDS("../../results/tables/summarytable.rds")
+resulttable <- readRDS("../../results/tables/summarytable.rds")
 knitr::kable(resulttable)
 ```
 
@@ -160,7 +160,7 @@ Example @tbl-resulttable2 shows a summary of a linear model fit.
 #| label: tbl-resulttable2
 #| tbl-cap: "Linear model fit table."
 #| echo: FALSE
-resulttable2 = readRDS(here("results","tables","resulttable2.rds"))
+resulttable2 <- readRDS(here("results","tables","resulttable2.rds"))
 knitr::kable(resulttable2)
 ```
 
