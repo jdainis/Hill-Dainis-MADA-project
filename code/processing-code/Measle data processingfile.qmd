@@ -6,6 +6,7 @@ output: html_document
 # Setup
 ```{r}
 library(tidyverse)   # Data wrangling + plotting (dplyr, tidyr, ggplot2, readr, stringr)
+library(readxl) #allows reading of excel files
 library(lubridate)   # Date parsing and extracting years
 library(janitor)     # clean_names() for consistent column names
 library(scales)      # percent() formatting
@@ -15,18 +16,22 @@ library(here)        # Stable project-root paths
 
 # Loading cdc-measlesbystate.csv
 ```{r}
+#Load in raw CDC measles data
 cdcmeaslesbystate_raw <- read_csv(here("data/raw-data/cdc-measlesbystate.csv"), show_col_types = FALSE) |>
   clean_names()
 
+#View the first 8 rows in the raw data
 names(cdcmeaslesbystate_raw)
-cdcmeaslesbystate_raw |> slice_head(n = 8)              
+cdcmeaslesbystate_raw |> slice_head(n = 8)
 ```
 # Cleaning
 ```{r}
-
+#Rename the location column to state
   if ("location" %in% names(cdcmeaslesbystate_raw)) {
   cdcmeaslesbystate_raw <- cdcmeaslesbystate_raw |> rename(state = location)
 }
+
+#Rename columns while converting the dataset from a wide format to a long format
   cdcmeaslesbystate_long <- cdcmeaslesbystate_raw |>
   select(state, matches("^x?\\d{4}$")) |>
   pivot_longer(
@@ -35,11 +40,14 @@ cdcmeaslesbystate_raw |> slice_head(n = 8)
     values_to = "cases"
   ) |>
   mutate(
-    year  = readr::parse_number(year_raw),
-    cases = suppressWarnings(as.numeric(cases)),
-    state = stringr::str_to_title(stringr::str_squish(state))
+    year  = readr::parse_number(year_raw), #extract year numbers from string values
+    cases = suppressWarnings(as.numeric(cases)), #convert case variable to numeric
+    state = stringr::str_to_title(stringr::str_squish(state)) #Format states to be capitalized
   ) |>
-  filter(!is.na(state), !is.na(year))
+  filter(
+    !is.na(state), 
+    !is.na(year), 
+    state != "District Of Columbia") #Remove rows associated with District of Columbia
 
 # Quick checks
 names(cdcmeaslesbystate_long)
@@ -66,25 +74,34 @@ summary(recent_state$total_cases_2024_26)
 
 # Loading measles-noncumulative.csv
 ```{r}
+#Load in historical measles data
 hist_raw <- read_csv(here("data/raw-data/measles-noncumulative.csv"), show_col_types = FALSE) |>
   clean_names()
 
+#View the names of the first 3 columns in the raw historical data
 names(hist_raw)
 hist_raw |> slice_head(n = 3)
 ```
 # Cleaning: Weekly totals to yearly totals per state
 ```{r}
+#Clean the raw data and make a new dataframe containing yearly measles data
 hist_yearly <- hist_raw |>
-  transmute(
-    state = str_to_title(str_squish(admin1name)),
-    start_date = ymd(period_start_date),
-    year = year(start_date),
-    cases = as.numeric(count_value)
+  transmute( #create new dataframe containing these variables
+    state = str_to_title(str_squish(admin1name)), #convert states to be in similar format to previous dataset
+    start_date = ymd(period_start_date), #convert period state date variable to a proper start date
+    year = year(start_date), #extract year from start_date
+    cases = as.numeric(count_value) #make count_value a numeric variable
   ) |>
-  filter(!is.na(state), !is.na(year), !is.na(cases)) |>
-  group_by(state, year) |>
-  summarise(cases = sum(cases, na.rm = TRUE), .groups = "drop")
+  filter(
+    !is.na(state), 
+    !is.na(year), 
+    !is.na(cases),
+    !state %in% c("American Samoa", "Guam", "District of Columbia", "Northern Mariana Islands", "Puerto Rico", "Virgin Islands, U.s.")) |>
+    #remove cities and U.S. territories
+  group_by(state, year) |> #group data by state and year
+  summarise(cases = sum(cases, na.rm = TRUE), .groups = "drop") #sum up number of cases by year for each state
 
+#Check to confirm data is cleaned
 hist_yearly |> summarise(min_year = min(year), max_year = max(year), states = n_distinct(state))
 hist_yearly |> slice_head(n = 10)
 ```
@@ -154,7 +171,13 @@ mmr_clean <- mmr_raw |>
     mmr_pct = readr::parse_number(estimated_percent_vaccinated),# handles "95.4%" or "95.4"
     category = if ("category" %in% names(mmr_raw)) category else NA_character_
   ) |>
-  filter(!is.na(state), !is.na(school_year_start), !is.na(mmr_pct))
+  filter(!is.na(state), 
+  !is.na(school_year_start), 
+  !is.na(mmr_pct),
+  !state %in% c(
+    "Houston", "San Antonio", "New York City", "District Of Columbia" 
+  )
+  )
 
 # Check which years exist
 mmr_clean |> count(school_year, school_year_start) |> arrange(school_year_start)
@@ -173,11 +196,67 @@ mmr_state_year |> count(school_year_start) |> arrange(school_year_start)
 mmr_state_year |> filter(state %in% c("Texas","South Carolina")) |> arrange(state, school_year_start)
 ```
 
+# Loading of State Educational Attainment Data
+```{r}
+#Load in data using read_excel()
+education_raw <- read_excel(here("data/raw-data/educationattainment.xlsx"), skip = 6) |>
+  clean_names()
+
+#Remove NA columns due to how the data is loaded in
+education_clean <- education_raw %>% select(-c("x3", "x6", "x9", "x12", "x15", "x18", "x21", "x24", "x27", "x30", "x33", "x36", "x39", "x42"))
+
+#Rename the columns due to the structure of the excel datasheet
+education_clean <- rename(
+  education_clean,
+  "state" = "x1",
+  "2012_18to24hs_percent" = "x2",
+  "2012_18to24hs_sd" = "x4",
+  "2022_18to24hs_percent" = "x3_2",
+  "2022_18to24hs_sd" = "x7",
+  "2012_25pluslessthanhs_percent" = "x4_2",
+  "2012_25pluslessthanhs_sd" = "x10",
+  "2012_25plushsorhigher_percent" = "x5",
+  "2012_25plushsorhigher_sd" = "x13",
+  "2012_25plustotalbachgrad_percent" = "x6_2",
+  "2012_25plustotalbachgrad_sd" = "x16",
+  "2012_25plusbachonly_percent" = "x7_2",
+  "2012_25plusto24bachonly_sd" = "x19",
+  "2012_25plusgraddegree_percent" = "x8",
+  "2012_25plusto24graddegree_sd" = "x22",
+  "2022_25pluslessthanhs_percent" = "x9_2",
+  "2022_25pluslessthanhs_sd" = "x25",
+  "2022_25plushsorhighertotal_percent" = "x10_2",
+  "2022_25plushsorhighertotal_sd" = "x28",
+  "2022_25plushsorhigherhsonly_percent" = "x11",
+  "2022_25plushsorhigherhsonly_sd" = "x31",
+  "2022_25plussomecolldegree_percent" = "x12_32",
+  "2022_25plussomecolldegree_sd" = "x12_34",
+  "2022_25plusbachorhighertotal_percent" = "x13_2",
+  "2022_25plusto24bachorhighertotal_sd" = "x37",
+  "2022_25plusbachonly_percent" = "x14",
+  "2022_25plusto24bachonly_sd" = "x40",
+  "2022_25plusgraddegree_percent" = "x15_2",
+  "2022_25plusto24graddegree_sd" = "x43"
+)
+
+#Remove rows of data not affiliated with the 50 U.S. States
+##Make a df which contains United States, District of Columbia, Other Jurisdictions, Puerto Rico and final three rows
+rows_to_remove <- c(1, 10, 53, 54, 55, 56, 57)
+
+##Use rows_to_remove to remove the certain jurisdictions using slice()
+education_clean <- education_clean %>% slice(-rows_to_remove)
+
+#Add a column which calculates the difference between 2012 and 2022 high school graduation rates for individuals aged 18-24
+education_clean <- education_clean %>%
+  mutate(`hsgradratediff` = `2022_18to24hs_percent` - `2012_18to24hs_percent`
+  )
+```
+
 # Exploratory summaries and plots from cleaned data
 ```{r}
-# Exploratory summaries for MMR data
+#Exploratory summaries for MMR data
 
-# States with the lowest recent MMR coverage (chose last available year)
+#Find states with the lowest recent MMR coverage (chose last available year)
 last_year <- max(mmr_state_year$school_year_start, na.rm = TRUE)
 
 mmr_state_year |>
@@ -186,7 +265,7 @@ mmr_state_year |>
   select(state, school_year_start, mmr_pct) |>
   slice_head(n = 15)
 
-# States that were below 95% most often (across all years)
+#Determine states that were below 95% most often (across all years)
 mmr_state_features <- mmr_state_year |>
   group_by(state) |>
   summarise(
@@ -202,7 +281,7 @@ mmr_state_features <- mmr_state_year |>
 
 mmr_state_features |> slice_head(n = 20)
 
-# national mean and median over time
+#Calculate national mean and median over time
 mmr_national_trend <- mmr_state_year |>
   group_by(school_year_start) |>
   summarise(
@@ -212,13 +291,19 @@ mmr_national_trend <- mmr_state_year |>
   )
 
 mmr_national_trend
+
+#Summarize educational attainment across 50 U.S. states
+summary(education_clean)
 ```
-# Joining all three cleaned data into a master table
+# Joining all four cleaned data into a master table
 ```{r}
 features <- recent_state |>
 
   # Join historical persistence features
   left_join(hist_state, by = "state") |>
+
+  # Join education attainment features
+  left_join(education_clean, by = "state") |>
 
   # Join vaccination features
   left_join(mmr_state_features, by = "state")
@@ -301,8 +386,10 @@ recent_state |>
 
 ```{r}
 # Plot 2
+##Select certain states to hone in on
 focus_states <- c("Texas","South Carolina","Arizona","Utah","California","New York")
 
+#Plot the measles trends for the six selected states, some of which are having active measles outbreaks in the U.S.
 cdcmeaslesbystate_long |>
   filter(state %in% focus_states) |>
   ggplot(aes(year, cases, color = state)) +
@@ -338,6 +425,7 @@ hist_state |>
     y = "Percent of years with cases"
   ) +
   theme_minimal()
+
 # Plot 2
 hist_state |>
   arrange(desc(longest_run_nonzero)) |>
@@ -354,6 +442,54 @@ hist_state |>
   theme_minimal()
 ```
 
+```{r}
+# Exploratory summaries from educational attainment dataset
+
+# Plot 1: 18 to 24 year old percent graduation from high school by state in 2012
+education_clean |>
+  arrange(desc(`2012_18to24hs_percent`)) |>
+  ggplot(aes(x = `2012_18to24hs_percent`,
+             y = reorder(state, `2012_18to24hs_percent`))) +
+  geom_point() +
+  coord_flip() +
+  labs(
+    title = "Top states by high school graduation rates in 2012",
+    x = "State",
+    y = "Percent"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+# Plot 2: 18 to 24 year old percent graduation from high school by state in 2022
+education_clean |>
+  arrange(desc(`2022_18to24hs_percent`)) |>
+  ggplot(aes(x = `2022_18to24hs_percent`,
+             y = reorder(state, `2022_18to24hs_percent`))) +
+  geom_point() +
+  coord_flip() +
+  labs(
+    title = "Top states by high school graduation rates in 2022",
+    x = "State",
+    y = "Percent"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+#Plot 3: High school graduation rate differences over time
+education_clean |>
+  arrange(desc(`hsgradratediff`)) |>
+  ggplot(aes(x = `hsgradratediff`,
+             y = reorder(state, `hsgradratediff`))) +
+  geom_point() +
+  coord_flip() +
+  labs(
+    title = "Graduation Rate Differences from 2012 to 2022",
+    x = "State",
+    y = "Percent Difference"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
 
 # Exploratory data analysis
 
@@ -437,5 +573,187 @@ features |>
     y = "Peak measles cases (2024–2026)"
   ) +
   
+  theme_minimal()
+```
+
+```{r}
+# MMR Vaccination Rates vs Rate of Incomplete High School Graduation Rates
+# plot with linear regression
+features |>
+  ggplot(aes(x = `2022_25pluslessthanhs_percent`, y = mmr_mean)) +
+  
+  # scatter points
+  geom_point(size = 2) +
+  
+  # regression line + confidence band
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  
+  # state labels that avoid overlap
+  geom_text_repel(
+    aes(label = state),
+    size = 3,
+    max.overlaps = 50
+  ) +
+  
+  # sqrt scales help when some states have extreme outbreak values
+  scale_x_sqrt() +
+  scale_y_sqrt() +
+  
+  labs(
+    title = "MMR Vaccine Rates correlated to 2022 rates of high school incompletion by state",
+    x = "Incomplete High School Graduation Rates (%)",
+    y = "Average MMR Coverage (%)"
+  ) +
+
+  theme_minimal()
+
+# Vaccination rates vs positive/negative difference in high school graduation rate by state
+# plot with linear regression
+features |>
+  ggplot(aes(x = hsgradratediff, y = mmr_mean)) +
+  
+  # scatter points
+  geom_point(size = 2) +
+  
+  # regression line + confidence band
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  
+  # state labels that avoid overlap
+  geom_text_repel(
+    aes(label = state),
+    size = 3,
+    max.overlaps = 50
+  ) +
+  
+  # sqrt scales help when some states have extreme outbreak values
+  scale_x_sqrt() +
+  scale_y_sqrt() +
+  
+  labs(
+    title = "Recent MMR vaccine rates correlated to differences in graduation rate between 2012 and 2022",
+    x = "High School Graduation Rate Difference (%)",
+    y = "Average MMR Coverage (%)"
+  ) +
+
+  theme_minimal()
+
+# MMR vaccination rate vs grad school completion
+# plot with linear regression
+features |>
+  ggplot(aes(x = `2022_25plusbachorhighertotal_percent`, y = mmr_mean)) +
+  
+  # scatter points
+  geom_point(size = 2) +
+  
+  # regression line + confidence band
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  
+  # state labels that avoid overlap
+  geom_text_repel(
+    aes(label = state),
+    size = 3,
+    max.overlaps = 50
+  ) +
+  
+  # sqrt scales help when some states have extreme outbreak values
+  scale_x_sqrt() +
+  scale_y_sqrt() +
+  
+  labs(
+    title = "MMR Vaccination Rates correlated to attaining higher education degree(s)",
+    x = "Bacherlors or Higher Education Rate (percent)",
+    y = "Average MMR Coverage (%)"
+  ) +
+
+  theme_minimal()
+
+# Peak measles case burden (2024-26) vs grad school completion
+# plot with linear regression
+features |>
+  ggplot(aes(x = `2022_25plusbachorhighertotal_percent`, y = peak_cases_2024_26)) +
+  
+  # scatter points
+  geom_point(size = 2) +
+  
+  # regression line + confidence band
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  
+  # state labels that avoid overlap
+  geom_text_repel(
+    aes(label = state),
+    size = 3,
+    max.overlaps = 50
+  ) +
+  
+  # sqrt scales help when some states have extreme outbreak values
+  scale_x_sqrt() +
+  scale_y_sqrt() +
+  
+  labs(
+    title = "Recent peak measles cases correlated to differences in graduation rate between 2012 and 2022",
+    x = "High School Graduation Rate Difference (percent)",
+    y = "Peak measles cases (2024–2026)"
+  ) +
+
+  theme_minimal()
+
+# Total Measles Cases vs Rate of Incomplete High School Graduation Rates
+# plot with linear regression
+features |>
+  ggplot(aes(x = `2022_25pluslessthanhs_percent`, y = total_cases_2024_26)) +
+  
+  # scatter points
+  geom_point(size = 2) +
+  
+  # regression line + confidence band
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  
+  # state labels that avoid overlap
+  geom_text_repel(
+    aes(label = state),
+    size = 3,
+    max.overlaps = 50
+  ) +
+  
+  # sqrt scales help when some states have extreme outbreak values
+  scale_x_sqrt() +
+  scale_y_sqrt() +
+  
+  labs(
+    title = "Total Measles Cases (2024-26) correlated to 2022 rates of high school incompletion by state",
+    x = "Incomplete High School Graduation Rates (%)",
+    y = "Total Measles Cases (2024-26)"
+  ) +
+
+  theme_minimal()
+
+# Total Measles Cases vs Rate of Incomplete High School Graduation Rates
+# plot with linear regression
+features |>
+  ggplot(aes(x = `2012_18to24hs_percent`, y = total_cases_2024_26)) +
+  
+  # scatter points
+  geom_point(size = 2) +
+  
+  # regression line + confidence band
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  
+  # state labels that avoid overlap
+  geom_text_repel(
+    aes(label = state),
+    size = 3,
+    max.overlaps = 50
+  ) +
+  
+  # sqrt scales help when some states have extreme outbreak values
+  scale_x_sqrt() +
+  scale_y_sqrt() +
+  
+  labs(
+    title = "Total Measles Cases (2024-26) correlated to 2022 rates of high school incompletion by state",
+    x = "2012 High School Graduation Rates for 18-24 year olds (%)",
+    y = "Total Measles Cases (2024-26)"
+  ) +
+
   theme_minimal()
 ```
