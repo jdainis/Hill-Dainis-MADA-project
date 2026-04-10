@@ -309,6 +309,9 @@ features <- recent_state |>
   left_join(mmr_state_features, by = "state")
   features |> glimpse()
   features |> summarise(across(where(is.numeric), ~mean(is.na(.))))
+
+#Save Cleaned State Data for All Variables
+saveRDS(features, "data/processed-data/measlesstatefeatures_data.rds")
 ```
 ```{r}
 # Exploratory plots
