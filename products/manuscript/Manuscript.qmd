@@ -72,9 +72,11 @@ The second and third datasets were derived from the CDC's website on measles cas
 ## Questions/Hypotheses to be addressed
 Through this analysis, we are investigating several different factors to assess whether they can be used as predictors for emerging measles cases/outbreaks and current trends in MMR vaccination rates. First, we investigated historical measles incidence to understand whether past history with measles, and a lingering presence of measles in a community, could influence current trends and attitudes towards vaccination. We hypothesize that states with shorter-lived burdens are more hesitant to vaccinate, due to it being normalized in their community as measles being a less severe threat. This normalization of measles as not a concern for their community then subsequently creates hesitancy to vaccinate, and we hypothesize that this trend in less vaccination correlates with states having outbreaks of measles cases in 2024-2026. Second, we sought to investigate whether education levels could predict MMR vaccination rates and current measles outbreaks. We hypothesized that states with higher rates of post-high school education could have higher rates of MMR vaccination, which could correlate with a lesser burden of measles cases.
 
+
+
 To cite other work (important everywhere, but likely happens first in introduction), make sure your references are in the BibTeX file specified in the YAML header above and have the right BibTeX key. Then you can include like this:
 
-Examples of reproducible research projects can for instance be found in [@mckay2020; @mckay2020a].
+
 
 
 
@@ -99,11 +101,11 @@ We store those figures in the `assets` folder.
 # Methods
 
 ## Data acquisition
-Data was obtained from Project Tycho and the CDC as previously mentioned. In brief, CDC data was downloaded from their weekly updated repository. Data was downloaded on February 3, 2026[1]. Non-cumulative measles case data from Project Tycho[2] was downloaded with the following parameters: Condition = measles, Source name = US Nationally Notifiable Disease Surveillance System, Interval Type = Week, Cumulative = No.
+Data was obtained from Project Tycho and the CDC as previously mentioned. In brief, CDC data was downloaded from their weekly updated repository. Data was downloaded on February 3, 2026[1]. Non-cumulative measles case data from Project Tycho[2] was downloaded with the following parameters: Condition = measles, Source name = US Nationally Notifiable Disease Surveillance System, Interval Type = Week, Cumulative = No. MMR vaccination rate data was downloaded from a CDC repository on Feburary 26, 2026[3]. The education attainment data was downloaded from the National Center for Education Statistics, titled "Percentage of persons 18 to 24 years old and age 25 and over, by educational attainment and state or jurisdiction: 2012 and 2022" [4].
 
 
 ## Data import and cleaning
-_Write code that reads in the file and cleans it so it's ready for analysis. Since this will be fairly long code for most datasets, it might be a good idea to have it in one or several R scripts. If that is the case, explain here briefly what kind of cleaning/processing you do, and provide more details and well documented code somewhere (e.g. as supplement in a paper). All materials, including files that contain code, should be commented well so everyone can follow along._P
+The code written in measle data processingfile loads several raw datasets, including CDC measles cases by state, historical measles counts, MMR vaccination rates, and education data, and then standardizes column names and state labels so they match across files. The measles data is reshaped from wide to long format, years are extracted, case counts are converted to numeric values, and city locations are removed. Historical weekly measles data is aggregated into yearly totals per state and summarized to calculate persistence measures such as average cases, maximum cases, and longest streak of years with reported cases. The MMR vaccination data is cleaned by extracting school years, converting percentages to numeric values, removing city-level entries, and averaging duplicates to produce one row per state and year. Additional datasets are also cleaned by removing empty columns, renaming variables, and standardizing state names.
 
 ### CDC Measles 2024-26 Data
 ```{r}
@@ -258,7 +260,7 @@ education_clean <- education_clean %>%
 ```
 
 ## Statistical analysis
-Logistical regressions were applied to explore whether certain predictor variables, such as educational attainment, historical measles burden and MMR vaccination rates, could predictpr current measles burden in the 50 U.S. states.
+Logistical regressions were applied to explore whether certain predictor variables, such as educational attainment, historical measles burden and MMR vaccination rates, could predict current measles burden in the 50 U.S. states.
 
 {{< pagebreak >}}
 
@@ -301,7 +303,28 @@ The final variable we sought to incorporate into this analysis is historical mea
 
 Running a simple bivariate analysis using a percent of years with a positive historical measles burden shows a very weak association, indicating that this historical measles burden might not be a good predictor of current measles burden.
 
+
+
+## Multivariable analysis 
+
+The multivariable analysis started by creating a dataset that included the outcome variable (recent measles case totals) and four predictors: historical measles persistence, average MMR vaccination rate, the proportion of years below 95% vaccination coverage, and change in high school graduation rates. Because the data contained large differences between states, the variables were log-transformed to make them more suitable for modeling. The dataset was then split into training and testing sets, and 10-fold cross-validation was used to evaluate model performance more reliably. A linear regression model using all four predictors was fit to the training data, and performance was measured using mean absolute error (MAE). To understand which predictors mattered most, additional models were created by removing one predictor at a time and comparing their performance. Based on these comparisons, a simpler two-predictor model using only vaccination-related variables was created. Finally, predicted values were compared to actual values using a scatter plot to visually assess how well the model performed.
+
+
+The MAE summary table for the full model shows that the training, cross-validation, and test errors are fairly similar, which suggests the model is not overfitting and performs consistently across datasets.  
+
+![Figure 9: Determining the best predictors](Predictor_Importance.png)
+Figure 9: The predictor importance table shows that removing vaccination-related predictors increases the error more than removing the other variables, indicating that MMR coverage and the frequency of vaccination rates below 95% are the most important predictors. The table for this graph can be found in results/tables/which_of_the_4_predictors_performs_best.csv
+
+The simpler two-predictor model produces MAE values close to the full model, showing that vaccination variables alone explain much of the variation in measles cases. The table for this can be found in results/tables/Two-Predictor_Model_Summary.csv
+
+![Figure 10: Two-Predictor model](Two-Predictor_Model.png)
+Figure 10: The predicted vs. actual plot shows a general upward trend, meaning states with higher predicted values also tend to have higher observed measles cases, although the points are somewhat spread out, indicating moderate prediction error. Overall, these results suggest that vaccination coverage is the strongest factor in predicting measles case counts. 
+
+
+
+
 @tbl-summarytable shows a summary of the data.
+
 
 Note the loading of the data providing a **relative** path using the `../../` notation. (Two dots means a folder up). You never want to specify an **absolute** path like `C:\ahandel\myproject\results\` because if you share this with someone, it won't work for them since they don't have that path. You can also use the `here` R package to create paths. See examples of that below. I generally recommend the `here` package.
 
@@ -362,6 +385,6 @@ Note that this cited reference will show up at the end of the document, the refe
 {{< pagebreak >}}
 
 # References
-P
+
 
 
