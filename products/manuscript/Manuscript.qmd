@@ -267,11 +267,39 @@ Logistical regressions were applied to explore whether certain predictor variabl
 
 ## Exploratory/Descriptive analysis
 
-_Use a combination of text/tables/figures to explore and describe your data. Show the most important descriptive results here. Additional ones should go in the supplement. Even more can be in the R and Quarto files that are part of your project._
+Measles outbreaks are occurring across the United States, with several states reporting hundreds of cases. Since 2024, 5 states have reported having 100 or more cases, with 4 of these 5 states reporting more than 200 cases (Figure 1). These states include Arizona, Utah, South Carolina and Texas, with the latter two states having over 700+ cases respectively.
 
-![Example figure Austin and Joe have generated](unnamed-chunk-19-1.png)
+![Figure 1: A Select Few States are Experiencing Major Measles Outbreaks Since 2024](top_states_measles.png)
 
-![Another example figure Austin and Joe have generated](unnamed-chunk-16-2.png)
+To confirm whether the data used in this study reflects nationally reported trends in declining MMR vaccination rates, we first sought to test the national MMR vaccination trends in the dataset. Indeed, we see a declining rate in MMR vaccination rate in kindergartners, staggering at a 94% median vaccination rate until 2020, where we see a declining trend in MMR vaccination rate (Figure 2). 
+
+![Figure 2: National MMR Vaccination Data Reveal Declining Trend in Median Vaccination Rate in Kindergartners](national_MMR_trends.png)
+
+We next wanted to test whether current measles outbreaks could be correlated to recent MMR vaccination trends. In a certain subset of states, exemplified by New York and California, MMR vaccination rates either slightly increased since 2012 or hovered at or above the 95% target rate for measles herd immunity (Figure 3). The other trend seen, exemplified by Arizona, South Carolina, Texas, and Utah, is a steady decline, with many of the states in this starting above the 95% herd immunity rate and dropping below by 2024. 
+
+![Figure 3: Two Distinct Trends in MMR Vaccination Rate in Kindergarteners since 2012](focus_states_MMR_trends.png)
+
+After noting potential trends in the data between measles burden and MMR vaccination rates, we looked to develop a model which explored this correlartion. A bivariate model using mean MMR vaccination coverage as a predictor of total measles cases showed a slight negative correlation, with higher MMR coverage having a lesser measles burden.
+
+![Figure 4: Bivariate Modeling Shows Mean MMR Coverage as a Weak Predictor of Measles Burden](focus_states_MMR_trends.png)
+
+Being a highly contagious pathogen, measles presents itself as a disease that would likely have many factors that could influence total burden in U.S. communities. As a result, we sought additional variables that could be used as additional predictors of total measles case burdens. Many of these additional factors rely on variables inherent to the virus, including its pathogenicity, mutagenesis capability and virulence. For this study, we focused on societal variables inherent to the human hosts of this virus. First, we focused on educational attainment to better understand whether differences in highest achieved education level could influence measles burden, as these rates vary from state-to-state. The dataset used for education attainment, obtained from the National Center for Education Statistics, contained data from both 2012 to 2022, allowing us to do comparisons to not only attainment in those years but also with changes over time. Plotting differences in high school graduation over time reveals that a large majority of states are having higher graduation rates in 2022, whereas only a few states showed lower graduation rates compared to 2012, with Wyoming and Hawaii seeing the most negative change (Figure 5).
+
+![Figure 5: High School Graduation Trends Over Time](grad_rate_trends.png)
+
+Next, we investigated if there were any correlations between the high school graduation rate change variable and two predicted variables: total measles cases and MMR vaccine rate. There appeared to be a weakly positive association between the change in high school graduation rate and mean MMR vaccination rate (Figure 6).
+
+![Figure 6: High School Graduation Trends Over Time Weakly Associate with Mean MMR Vaccination Rates](vacc_posneghsgrad.png)
+
+A bivariate analysis between these changing graduation rates over time revealed no association between this variable and measles outbreaks. (This variable was log transformed to reduce the impact of the strong Texas and South Carolina outliers.)
+
+![Figure 7: A Bivariate Analysis with High School Graduation Trends Over Time Shows No Predictive Power of Total Measles Burden](total_vs_edu_log_trans_biovar.png)
+
+The final variable we sought to incorporate into this analysis is historical measles burden. We hypothesized that lingering measles cases over time might account for differences in behaviors in the community, which could account for current differences U.S. states currently experiencing measles outbreaks. We first investigated whether any correlation existed between total measles burden currently seen between 2024-2026 and the maximum number of cases yearly from 1980-2009. This revealed a positive correlation, with states having higher measles burden in the past having higher current measles burdens (Figure 8). However, it did not appear as though the states having the highest burdens followed this trend perfectly, with South Carolina, Utah and Arizona having higher burdens currently but a lesser historical burden.
+
+![Figure 8: Historical Measles Burden as a Predictor of Current Measles Burden](peak_measles_historical_peak.png)
+
+Running a simple bivariate analysis using a percent of years with a positive historical measles burden shows a very weak association, indicating that this historical measles burden might not be a good predictor of current measles burden.
 
 @tbl-summarytable shows a summary of the data.
 
