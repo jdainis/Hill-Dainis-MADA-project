@@ -58,54 +58,29 @@ _It is recommended to use a structured abstract with Background/Methods/Results/
 # Introduction 
 
 ## General Background Information
-Measles is a globarlly distributed, highly contagious viral infection induced by the measles virus. Also known as the rubeola virus, this Paramyxoviridae virus, belonging to the Morbillivirus genus, induces upwards of 300,000 cases per year, with an estimated incidence of 29 per 1,000,000 individuals. The World Health Organization (WHO) edtimated that the measles virus resulted in the death of 95,000 individuals. 
+Measles is a globarlly distributed, highly contagious viral infection induced by the measles virus [@misin2020]. Also known as the rubeola virus, this Paramyxoviridae virus, belonging to the Morbillivirus genus, induces upwards of 300,000 cases per year, with an estimated incidence of 29 per 1,000,000 individuals [@klose2024]. The World Health Organization (WHO) edtimated that the measles virus resulted in the death of 95,000 individuals [@minta2023]. 
 
-First introduced in 1963 in the United States, the measles vaccine, which was enhanced to also immunize against mumps and rubella in 1971 (coined the MMR vaccine), proved to be a very effective strategy to limit mortality and morbidity due to measles. As part of a study to investigate the impact of the Expanded Programme of Immunization (EPI), a WHO-initiated effort to provide common vaccinations globally, it was found that since 1974, an estimated 94 million out of 154 million lives were saved due to MMR vaccination. However, despite the proven benefits of MMR vaccinatation and the severe consequences of measles infection, vaccination rates are on the decline. To maintain herd immunity, a protective status where a certain vaccination rate in the population enables resistance to spread of a pathogen, measles vaccination rates must be at or above 95%, with a minimum threshold of 90%. 
+First introduced in 1963 in the United States, the measles vaccine, which was enhanced to also immunize against mumps and rubella in 1971 (coined the MMR vaccine), proved to be a very effective strategy to limit mortality and morbidity due to measles [@who2025]. As part of a study to investigate the impact of the Expanded Programme of Immunization (EPI), a WHO-initiated effort to provide common vaccinations globally, it was found that since 1974, an estimated 94 million out of 154 million lives were saved due to MMR vaccination [@shattock2024]. However, despite the proven benefits of MMR vaccinatation and the severe consequences of measles infection, vaccination rates are on the decline [@gambrell2022]. To maintain herd immunity, a protective status where a certain vaccination rate in the population enables resistance to spread of a pathogen, measles vaccination rates must be at or above 95%, with a minimum threshold of 90% [@whoimmun2025]. 
 
-Since peaking at a 86% global MMR vaccination rate in 2019, vaccination efforts have staggered and slightly dipped. Much progress was halted due to the COVID-19 pandemic, but even several years post-pandemic in 2024, global MMR vaccination rates have not exceeded 84%. Even in the United States, MMR vaccination rates have begun to decline; a recent study has shown of 2,066 interrogated counties in the United States that 78% of these counties reported a decline in MMR vaccination post-COVID-19 pandemic. This raises major concerns that the United States will trend towards not being able to maintain the critical minimum threshold of 90% vaccination for herd immunity protection from measles. In certain communities and states in the United States, measles outbreaks are occurring for the first time in decades, with cases surging past 1,000 cases so far in 2026. These alarming trends raise a need for researchers to better understand where this MMR vaccination distrust is coming from to provide actionable targets to rebuild that trust.
+Since peaking at a 86% global MMR vaccination rate in 2019, vaccination efforts have staggered and slightly dipped. Much progress was halted due to the COVID-19 pandemic, but even several years post-pandemic in 2024, global MMR vaccination rates have not exceeded 84% [@shattock2024]. Even in the United States, MMR vaccination rates have begun to decline; a recent study has shown of 2,066 interrogated counties in the United States that 78% of these counties reported a decline in MMR vaccination post-COVID-19 pandemic [@dong2025]. This raises major concerns that the United States will trend towards not being able to maintain the critical minimum threshold of 90% vaccination for herd immunity protection from measles. In certain communities and states in the United States, measles outbreaks are occurring for the first time in decades, with cases surging past 1,000 cases so far in 2026. These alarming trends raise a need for researchers to better understand where this MMR vaccination distrust is coming from to provide actionable targets to rebuild that trust.
 
 ## Description of data and data source
 To investigate possible explanations of MMR vaccination trends and measles outbreaks in the United States, four datasets used in this study comes from two different sources. The first dataset, which looks at historical measles case rates from as early as the late 1800s, is sourced from Project Tycho, an open-access global health data resource offered and maintained by the University of Pittsburgh. This data repository offers a large set of pre- and self-compiled data spanning a variety of pathogenic diseases. This study self-compiled a measles dataset, sourced from the United States Nationally Notifiable Surveillance System, spanning 352,518 non-cumulative cases recorded from the 50 United States and multiple U.S. territories, including American Samoa, Guam, Northern Marina Islands, U.S. Virgin Islands and the District of Columbia. These cases cover an age range of 0-130 years of age and provides a number of cases reported within a given period start and end date.
 
-The second and third datasets were derived from the CDC's website on measles cases and outbreaks: https://www.cdc.gov/measles/data-research/index.html. This resource offered two datasets analyzed in this study. First, a simple data table of detected measles cases in the 50 United States from 2024-2026. The second dataset is a data table compiling MMR vaccination rates in the 50 United States from 2009 through 2025. This data compiles 286,000 kindergarteners who reported receiving an MMR vaccine during the school year. This data is broken down based on the state, estimated vaccination rate, population size and the survey type used to obtain this data. The final dataset used in this study was sourced from a study from the National Center for Education Statistics, in which attainment rates for high school and post-graduation educations were assessed for all 50 U.S. states and Puerto Rico. This data was collected in two different years, 2012 and 2022, in an effort to match the time periods for the MMR vaccination rate dataset.
+The second and third datasets were derived from the CDC's website on measles cases and outbreaks [@cdc2026]. This resource offered two datasets analyzed in this study. First, a simple data table of detected measles cases in the 50 United States from 2024-2026. The second dataset is a data table compiling MMR vaccination rates in the 50 United States from 2009 through 2025. This data compiles 286,000 kindergarteners who reported receiving an MMR vaccine during the school year. This data is broken down based on the state, estimated vaccination rate, population size and the survey type used to obtain this data. The final dataset used in this study was sourced from a study from the National Center for Education Statistics, in which attainment rates for high school and post-graduation educations were assessed for all 50 U.S. states and Puerto Rico. This data was collected in two different years, 2012 and 2022, in an effort to match the time periods for the MMR vaccination rate dataset.
 
 ## Questions/Hypotheses to be addressed
 Through this analysis, we are investigating several different factors to assess whether they can be used as predictors for emerging measles cases/outbreaks and current trends in MMR vaccination rates. First, we investigated historical measles incidence to understand whether past history with measles, and a lingering presence of measles in a community, could influence current trends and attitudes towards vaccination. We hypothesize that states with shorter-lived burdens are more hesitant to vaccinate, due to it being normalized in their community as measles being a less severe threat. This normalization of measles as not a concern for their community then subsequently creates hesitancy to vaccinate, and we hypothesize that this trend in less vaccination correlates with states having outbreaks of measles cases in 2024-2026. Second, we sought to investigate whether education levels could predict MMR vaccination rates and current measles outbreaks. We hypothesized that states with higher rates of post-high school education could have higher rates of MMR vaccination, which could correlate with a lesser burden of measles cases.
 
 
-
-To cite other work (important everywhere, but likely happens first in introduction), make sure your references are in the BibTeX file specified in the YAML header above and have the right BibTeX key. Then you can include like this:
-
-
-
-
-
-{{< pagebreak >}}
-
-
-  html:
-    embed-resources: true# Methods 
-
-## Schematic of workflow
-
-Sometimes you might want to show a schematic diagram/figure that was not created with code (if you can do it with code, do it). @fig-schematic is an example of some - completely random/unrelated - schematic that was generated with BioRender.
-We store those figures in the `assets` folder.
-
-```{r}
-#| label: fig-schematic
-#| fig-cap: "A figure that is manually generated and shows some overview/schematic. This has nothing to do with the data, it's just a random one from one of our projects I found and placed here."
-#| echo: FALSE
-```
-
-
 # Methods
 
 ## Data acquisition
-Data was obtained from Project Tycho and the CDC as previously mentioned. In brief, CDC data was downloaded from their weekly updated repository. Data was downloaded on February 3, 2026[1]. Non-cumulative measles case data from Project Tycho[2] was downloaded with the following parameters: Condition = measles, Source name = US Nationally Notifiable Disease Surveillance System, Interval Type = Week, Cumulative = No. MMR vaccination rate data was downloaded from a CDC repository on Feburary 26, 2026[3]. The education attainment data was downloaded from the National Center for Education Statistics, titled "Percentage of persons 18 to 24 years old and age 25 and over, by educational attainment and state or jurisdiction: 2012 and 2022" [4].
+Data was obtained from Project Tycho and the CDC as previously mentioned. In brief, CDC data was downloaded from their weekly updated repository. Data was downloaded on February 3, 2026[@cdc2026]. Non-cumulative measles case data from Project Tycho[@tycho2026] was downloaded with the following parameters: Condition = measles, Source name = US Nationally Notifiable Disease Surveillance System, Interval Type = Week, Cumulative = No. MMR vaccination rate data was downloaded from a CDC repository on Feburary 26, 2026[@cdc2026]. The education attainment data was downloaded from the National Center for Education Statistics, titled "Percentage of persons 18 to 24 years old and age 25 and over, by educational attainment and state or jurisdiction: 2012 and 2022" [@nces2023].
 
 
 ## Data import and cleaning
-The code written in measle data processingfile loads several raw datasets, including CDC measles cases by state, historical measles counts, MMR vaccination rates, and education data, and then standardizes column names and state labels so they match across files. The measles data is reshaped from wide to long format, years are extracted, case counts are converted to numeric values, and city locations are removed. Historical weekly measles data is aggregated into yearly totals per state and summarized to calculate persistence measures such as average cases, maximum cases, and longest streak of years with reported cases. The MMR vaccination data is cleaned by extracting school years, converting percentages to numeric values, removing city-level entries, and averaging duplicates to produce one row per state and year. Additional datasets are also cleaned by removing empty columns, renaming variables, and standardizing state names.
+The code written in measle data processing file loads several raw datasets, including CDC measles cases by state, historical measles counts, MMR vaccination rates, and education data, and then standardizes column names and state labels so they match across files. The measles data is reshaped from wide to long format, years are extracted, case counts are converted to numeric values, and city locations are removed. Historical weekly measles data is aggregated into yearly totals per state and summarized to calculate persistence measures such as average cases, maximum cases, and longest streak of years with reported cases. The MMR vaccination data is cleaned by extracting school years, converting percentages to numeric values, removing city-level entries, and averaging duplicates to produce one row per state and year. Additional datasets are also cleaned by removing empty columns, renaming variables, and standardizing state names.
 
 ### CDC Measles 2024-26 Data
 ```{r}
@@ -271,38 +246,37 @@ Logistical regressions were applied to explore whether certain predictor variabl
 
 Measles outbreaks are occurring across the United States, with several states reporting hundreds of cases. Since 2024, 5 states have reported having 100 or more cases, with 4 of these 5 states reporting more than 200 cases (Figure 1). These states include Arizona, Utah, South Carolina and Texas, with the latter two states having over 700+ cases respectively.
 
-![Figure 1: A Select Few States are Experiencing Major Measles Outbreaks Since 2024](top_states_measles.png)
+![Figure 1: A Select Few States are Experiencing Major Measles Outbreaks Since 2024](figures/top_states_measles.png)
 
 To confirm whether the data used in this study reflects nationally reported trends in declining MMR vaccination rates, we first sought to test the national MMR vaccination trends in the dataset. Indeed, we see a declining rate in MMR vaccination rate in kindergartners, staggering at a 94% median vaccination rate until 2020, where we see a declining trend in MMR vaccination rate (Figure 2). 
 
-![Figure 2: National MMR Vaccination Data Reveal Declining Trend in Median Vaccination Rate in Kindergartners](national_MMR_trends.png)
+![Figure 2: National MMR Vaccination Data Reveal Declining Trend in Median Vaccination Rate in Kindergartners](figures/national_MMR_trends.png)
 
 We next wanted to test whether current measles outbreaks could be correlated to recent MMR vaccination trends. In a certain subset of states, exemplified by New York and California, MMR vaccination rates either slightly increased since 2012 or hovered at or above the 95% target rate for measles herd immunity (Figure 3). The other trend seen, exemplified by Arizona, South Carolina, Texas, and Utah, is a steady decline, with many of the states in this starting above the 95% herd immunity rate and dropping below by 2024. 
 
-![Figure 3: Two Distinct Trends in MMR Vaccination Rate in Kindergarteners since 2012](focus_states_MMR_trends.png)
+![Figure 3: Two Distinct Trends in MMR Vaccination Rate in Kindergarteners since 2012](figures/focus_states_MMR_trends.png)
 
 After noting potential trends in the data between measles burden and MMR vaccination rates, we looked to develop a model which explored this correlartion. A bivariate model using mean MMR vaccination coverage as a predictor of total measles cases showed a slight negative correlation, with higher MMR coverage having a lesser measles burden.
 
-![Figure 4: Bivariate Modeling Shows Mean MMR Coverage as a Weak Predictor of Measles Burden](focus_states_MMR_trends.png)
+![Figure 4: Bivariate Modeling Shows Mean MMR Coverage as a Weak Predictor of Measles Burden](figures/focus_states_MMR_trends.png)
 
 Being a highly contagious pathogen, measles presents itself as a disease that would likely have many factors that could influence total burden in U.S. communities. As a result, we sought additional variables that could be used as additional predictors of total measles case burdens. Many of these additional factors rely on variables inherent to the virus, including its pathogenicity, mutagenesis capability and virulence. For this study, we focused on societal variables inherent to the human hosts of this virus. First, we focused on educational attainment to better understand whether differences in highest achieved education level could influence measles burden, as these rates vary from state-to-state. The dataset used for education attainment, obtained from the National Center for Education Statistics, contained data from both 2012 to 2022, allowing us to do comparisons to not only attainment in those years but also with changes over time. Plotting differences in high school graduation over time reveals that a large majority of states are having higher graduation rates in 2022, whereas only a few states showed lower graduation rates compared to 2012, with Wyoming and Hawaii seeing the most negative change (Figure 5).
 
-![Figure 5: High School Graduation Trends Over Time](grad_rate_trends.png)
+![Figure 5: High School Graduation Trends Over Time](figures/grad_rate_trends.png)
 
 Next, we investigated if there were any correlations between the high school graduation rate change variable and two predicted variables: total measles cases and MMR vaccine rate. There appeared to be a weakly positive association between the change in high school graduation rate and mean MMR vaccination rate (Figure 6).
 
-![Figure 6: High School Graduation Trends Over Time Weakly Associate with Mean MMR Vaccination Rates](vacc_posneghsgrad.png)
+![Figure 6: High School Graduation Trends Over Time Weakly Associate with Mean MMR Vaccination Rates](figures/vacc_posneghsgrad.png)
 
 A bivariate analysis between these changing graduation rates over time revealed no association between this variable and measles outbreaks. (This variable was log transformed to reduce the impact of the strong Texas and South Carolina outliers.)
 
-![Figure 7: A Bivariate Analysis with High School Graduation Trends Over Time Shows No Predictive Power of Total Measles Burden](total_vs_edu_log_trans_biovar.png)
+![Figure 7: A Bivariate Analysis with High School Graduation Trends Over Time Shows No Predictive Power of Total Measles Burden](figures/total_vs_edu_log_trans_biovar.png)
 
 The final variable we sought to incorporate into this analysis is historical measles burden. We hypothesized that lingering measles cases over time might account for differences in behaviors in the community, which could account for current differences U.S. states currently experiencing measles outbreaks. We first investigated whether any correlation existed between total measles burden currently seen between 2024-2026 and the maximum number of cases yearly from 1980-2009. This revealed a positive correlation, with states having higher measles burden in the past having higher current measles burdens (Figure 8). However, it did not appear as though the states having the highest burdens followed this trend perfectly, with South Carolina, Utah and Arizona having higher burdens currently but a lesser historical burden.
 
-![Figure 8: Historical Measles Burden as a Predictor of Current Measles Burden](peak_measles_historical_peak.png)
+![Figure 8: Historical Measles Burden as a Predictor of Current Measles Burden](figures/peak_measles_historical_peak.png)
 
 Running a simple bivariate analysis using a percent of years with a positive historical measles burden shows a very weak association, indicating that this historical measles burden might not be a good predictor of current measles burden.
-
 
 
 ## Multivariable analysis 
@@ -312,59 +286,28 @@ The multivariable analysis started by creating a dataset that included the outco
 
 The MAE summary table for the full model shows that the training, cross-validation, and test errors are fairly similar, which suggests the model is not overfitting and performs consistently across datasets.  
 
-![Figure 9: Determining the best predictors](Predictor_Importance.png)
+![Figure 9: Determining the best predictors](figures/Predictor_Importance.png)
 Figure 9: The predictor importance table shows that removing vaccination-related predictors increases the error more than removing the other variables, indicating that MMR coverage and the frequency of vaccination rates below 95% are the most important predictors. The table for this graph can be found in results/tables/which_of_the_4_predictors_performs_best.csv
 
 The simpler two-predictor model produces MAE values close to the full model, showing that vaccination variables alone explain much of the variation in measles cases. The table for this can be found in results/tables/Two-Predictor_Model_Summary.csv
 
-![Figure 10: Two-Predictor model](Two-Predictor_Model.png)
+![Figure 10: Two-Predictor model](figures/Two-Predictor_Model.png)
 Figure 10: The predicted vs. actual plot shows a general upward trend, meaning states with higher predicted values also tend to have higher observed measles cases, although the points are somewhat spread out, indicating moderate prediction error. Overall, these results suggest that vaccination coverage is the strongest factor in predicting measles case counts. 
 
 
+## Random Forest Modeling
 
+Next, we sought to use machine learning and modeling to test whether any of the aforementioned variables could be used to predict our main outcome of interest, which is total case burdens from 2024 to 2026. The random forest model was chosen for this modeling due to its ability to handle extreme outliers, which we see in certain states in our datasets, and reduce overfitting. It was then compared to a linear regression model. To test the metrics of the Random Forest model, we used the Mean Absolute Error, or MAE, as this metric is commonly used for datasets with extreme outliers. 
 
-@tbl-summarytable shows a summary of the data.
+![Figure 11: Model Comparison between Random Forest and Linear Regression Models](figures/RandomForestMeasles.png)
 
-
-Note the loading of the data providing a **relative** path using the `../../` notation. (Two dots means a folder up). You never want to specify an **absolute** path like `C:\ahandel\myproject\results\` because if you share this with someone, it won't work for them since they don't have that path. You can also use the `here` R package to create paths. See examples of that below. I generally recommend the `here` package.
+The comparison table in Figure 11 highlights how the four variables performed in predicting current measles cases in 2024-2026. Using all 4 predictor variables best predicted case measles using a linear regression model as compared to the random forest model, as indicated by the smaller Mean Absolute Error. This was also the case when only the "Historical Burdens" and "High School Graduation Rates" variables were used as predictors, with a slight improvement in MAE. However, when using the "MMR vaccination means" and "Fraction of Years Below 95% Vaccination" variables, the opposite was true: we see a smaller MAE when using the Random Forest Model as compared to the linear regression model. This indicates the both linear and non-linear variables are impacting the model's ability to predict current case burdens in the U.S. In addition, the Mean Absolute Error is quite high, with the MAE hovering at ~95 cases, indicating that the model is predicting the true burden for these states within a threshold of +/- 95 cases. This is semi-decent for states with high burdens, such as Texas and South Carolina, but for other states with low case burdens this model is not suitable for predictions. This additionally indicates that there are likely other variables that explain the outbreaks currently happening in communities across the United States.
 
 ```{r}
 #| figure: recent peak measles cases versus historical peak measles burden
 #| tbl-cap: "Recent peak measles cases versus historical peak measles burden."
 #| echo: FALSE
 ```
-
-
-
-## Basic statistical analysis
-
-_To get some further insight into your data, if reasonable you could compute simple statistics (e.g. simple models with 1 predictor) to look for associations between your outcome(s) and each individual predictor variable. Though note that unless you pre-specified the outcome and main exposure, any "p<0.05 means statistical significance" interpretation is not valid._
-
-
-@fig-result shows a scatterplot figure produced by one of the R scripts.
-
-```{r}
-#| label: fig-result
-#| fig-cap: "Height and weight stratified by gender."
-#| echo: FALSE
-```
-
-
-## Full analysis
-
-_Use one or several suitable statistical/machine learning methods to analyze your data and to produce meaningful figures, tables, etc. This might again be code that is best placed in one or several separate R scripts that need to be well documented. You want the code to produce figures and data ready for display as tables, and save those. Then you load them here._
-
-Example @tbl-resulttable2 shows a summary of a linear model fit.
-
-```{r}
-#| label: tbl-resulttable2
-#| tbl-cap: "Linear model fit table."
-#| echo: FALSE
-```
-
-
-{{< pagebreak >}}
-
 
 # Discussion
 

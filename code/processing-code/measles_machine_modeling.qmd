@@ -1,5 +1,5 @@
 ---
-title: "Machine Modeling using LASSO for current measles outbreaks in the U.S."
+title: "Machine Modeling using Random Forest for current measles outbreaks in the U.S."
 output: html_document
 ---
 # Load Necessary Libraries and Set Seed
@@ -19,10 +19,7 @@ library(glmnet)
 library(ranger)
 library(tidymodels)
 library(yardstick)
-
-#Set seed for reproducibility
-set.seed(1234)
-rngseed <- 1234
+library(gt)
 ```
 
 # Load the Cleaned Data
@@ -40,11 +37,6 @@ reduced_data <- ml_measles %>%
 strong_data <- ml_measles %>%
     select("total_cases_2024_26", "mmr_mean", "frac_years_below_95")
 
-#Split the data
-data_split <- initial_split(ml_measles, prop = 0.8)
-train_data <- training(data_split)
-test_data  <- testing(data_split)
-
 #Develop a pairwise correlation for the continuous variables in this dataset
 ##Select the continuous variables
 continuous_vars <- ml_measles %>%
@@ -58,12 +50,12 @@ ggpairs(continuous_vars)
 #Create an object while will run a pipeline that completes a random forest machine model, tunes the random forest model, cross-validates and fits the best RF model to the data based on Mean Absolute Error. 
 run_rf_model <- function(data) {
   
-  set.seed(1234) #Set the seed
+  set.seed(1234)
   
-  split <- initial_split(data, prop = 0.8) #Split the data into training and testing sets
+  split <- initial_split(data, prop = 0.8)
   train <- training(split)
   test  <- testing(split)
-  
+
   recipe_obj <- recipe(total_cases_2024_26 ~ ., data = train) %>%
     step_impute_median(all_numeric_predictors()) #Create a recipe for the total 2024-26 measles cases
   
@@ -112,19 +104,112 @@ run_rf_model <- function(data) {
   )#Extract the MAE metrics and place into a tibble
 }
 
+#Generate Linear Model to Compare the Random Forest Model to
+
+run_lm_model <- function(data) {
+  
+  set.seed(1234)
+  
+  split <- initial_split(data, prop = 0.8)
+  train <- training(split)
+  test  <- testing(split)
+  
+  recipe_obj <- recipe(total_cases_2024_26 ~ ., data = train) %>%
+    step_impute_median(all_numeric_predictors())
+  
+  model <- linear_reg() %>%
+    set_engine("lm") %>%
+    set_mode("regression")
+  
+  wf <- workflow() %>%
+    add_model(model) %>%
+    add_recipe(recipe_obj)
+  
+  fit_model <- fit(wf, data = train)
+  
+  preds <- predict(fit_model, test) %>%
+    bind_cols(test)
+  
+  metrics <- metrics(preds,
+                     truth = total_cases_2024_26,
+                     estimate = .pred)
+  
+  tibble(
+    mae = metrics %>% filter(.metric == "mae") %>% pull(.estimate)
+  )
+}
+
 #Run the model workflow designed above on the three different datasets: Full contains all variables, Reduced contains variabled we predict are having little predictive power, and strong-only includes variables we believe might have some predictive power
 results <- tibble(
-  model = c("Full", "Reduced", "Strong-only"),
-  data  = list(ml_measles, reduced_data, strong_data)
+  dataset = c("Full", "Reduced", "Strong-only"),
+  data    = list(ml_measles, reduced_data, strong_data)
 ) %>%
-  mutate(metrics = map(data, run_rf_model)) %>%
-  unnest(metrics)
+  mutate(
+    rf_metrics = map(data, run_rf_model),
+    lm_metrics = map(data, run_lm_model)
+  ) %>%
+  unnest(cols = c(rf_metrics, lm_metrics), names_sep = "_") %>%
+  rename(
+    rf_mae = rf_metrics_mae,
+    lm_mae = lm_metrics_mae
+  )
 
 #Compare the MAE across the different variables used as predictors of total_cases_2024_26
 results <- results %>%
   mutate(
-    mae_diff = mae - mae[model == "Full"]
+    mae_difference = lm_mae - rf_mae
   )
 
 results
+
+#Re-name dataset titles for cleaner display in output table
+results <- results %>%
+  mutate(
+    dataset = recode(dataset,
+      "Full" = "All 4 Predictor Variables",
+      "Reduced" = "Historical Burdens + High School Graduation Rates",
+      "Strong-only" = "MMR Vaccination Mean + Fraction of Years Below 95% Vaccination"
+    )
+  )
+
+#Create a table to display the results of the linear and random forest modeling
+results %>%
+  select(dataset, rf_mae, lm_mae, mae_difference) %>%
+  mutate(across(where(is.numeric), round, 2)) %>%
+  gt() %>%
+  tab_header(
+    title = "Model Comparison: Random Forest vs Linear Regression",
+    subtitle = "Mean Absolute Error (MAE) Across Three Predictor Variable Combinations"
+  ) %>%
+  cols_label(
+    dataset = "Dataset",
+    rf_mae = "RF MAE",
+    lm_mae = "LM MAE",
+    mae_difference = "LM - RF"
+  ) %>%
+  fmt_number(
+    columns = c(rf_mae, lm_mae, mae_difference),
+    decimals = 2
+  ) %>%
+  cols_align(
+    align = "center",
+    -dataset
+  ) %>%
+    tab_source_note(
+    source_note = "All 4 predictor variables include the combination of Historical Burdens, High School Graduation Rates, MMR Vaccination Means and Fraction of Years Below 95% Vacciantion. Historical Burdens is the maximum measles case burden between 1980 and 2009. High School Graduation Rates is the difference in high school graduation rates over time between 2012 and 2022. MMR Vaccination Mean is the mean MMR vaccination rate amongst kindergarteners from 2012 to 2024. Fraction of Years Below 95% Vaccination is a measure of the years a state was below the target goal of 95% MMR vaccination coverage from 2012 to 2024."
+  ) %>%
+tab_style(
+  style = cell_text(weight = "bold"),
+  locations = list(
+    cells_column_labels(everything()),
+    cells_title(groups = c("title", "subtitle"))
+  )) %>%
+data_color(
+  columns = c(rf_mae, lm_mae),
+  colors = scales::col_numeric(
+    palette = c("lightgreen", "white"),
+    domain = NULL
+  )
+) %>%
+  gtsave("RandomForestMeasles.png")
 ```
