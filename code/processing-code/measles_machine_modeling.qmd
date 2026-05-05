@@ -21,6 +21,9 @@ library(tidymodels)
 library(yardstick)
 library(gt)
 library(here)
+
+#Add additional time to save png file of table
+options(chromote.timeout = 30)
 ```
 
 # Load the Cleaned Data
@@ -211,6 +214,8 @@ data_color(
     palette = c("lightgreen", "white"),
     domain = NULL
   )
-) %>%
-  gtsave(here::here("products","manuscript","figures","RandomForestMeasles.png"))
+)
+
+#Save the results as an RDS for proper display in Manuscript.qmd
+saveRDS(results, here::here("products","manuscript","figures","rf_results.rds"))
 ```

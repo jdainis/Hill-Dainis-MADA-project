@@ -2,8 +2,6 @@
 title: "Investigation of Measles Case Trends Post-Vaccination Efforts in the United States"
 author: "Austin Hill, Joe Dainis"
 format:
-  html:
-    embed-resources: true
   docx:
     toc: false
     number-sections: true
@@ -228,7 +226,7 @@ education_clean <- education_clean %>%
 ```
 
 ## Statistical analysis
-Logistical regressions were applied to explore whether certain predictor variables, such as educational attainment, historical measles burden and MMR vaccination rates, could predict current measles burden in the 50 U.S. states.
+Linear regressions were applied to explore whether certain predictor variables, such as educational attainment, historical measles burden and MMR vaccination rates, could predict current measles burden in the 50 U.S. states.
 
 {{< pagebreak >}}
 
@@ -353,13 +351,58 @@ Next, we sought to use machine learning and modeling to test whether any of the 
 
 ```{r}
 #| echo: false
-#| fig-cap: "Figure 11: Model Comparison between Random Forest and Linear Regression Models"
+#| warning: false
+#| message: false
+#| fig-cap: "Table 1: Model Comparison between Random Forest and Linear Regression Models"
 
-knitr::include_graphics(here::here("products","manuscript","figures", "RandomForestMeasles.png"))
+library(gt)
+library(dplyr)
+library(here)
+
+results <- readRDS(here::here("products","manuscript","figures","rf_results.rds"))
+
+results %>%
+  select(dataset, rf_mae, lm_mae, mae_difference) %>%
+  mutate(across(where(is.numeric), round, 2)) %>%
+  gt() %>%
+  tab_header(
+    title = "Model Comparison: Random Forest vs Linear Regression",
+    subtitle = "Mean Absolute Error (MAE) Across Three Predictor Variable Combinations"
+  ) %>%
+  cols_label(
+    dataset = "Dataset",
+    rf_mae = "RF MAE",
+    lm_mae = "LM MAE",
+    mae_difference = "LM - RF"
+  ) %>%
+  fmt_number(
+    columns = c(rf_mae, lm_mae, mae_difference),
+    decimals = 2
+  ) %>%
+  cols_align(
+    align = "center",
+    -dataset
+  ) %>%
+    tab_source_note(
+    source_note = "All 4 predictor variables include the combination of Historical Burdens, High School Graduation Rates, MMR Vaccination Means and Fraction of Years Below 95% Vacciantion. Historical Burdens is the maximum measles case burden between 1980 and 2009. High School Graduation Rates is the difference in high school graduation rates over time between 2012 and 2022. MMR Vaccination Mean is the mean MMR vaccination rate amongst kindergarteners from 2012 to 2024. Fraction of Years Below 95% Vaccination is a measure of the years a state was below the target goal of 95% MMR vaccination coverage from 2012 to 2024."
+  ) %>%
+tab_style(
+  style = cell_text(weight = "bold"),
+  locations = list(
+    cells_column_labels(everything()),
+    cells_title(groups = c("title", "subtitle"))
+  )) %>%
+data_color(
+  columns = c(rf_mae, lm_mae),
+  colors = scales::col_numeric(
+    palette = c("lightgreen", "white"),
+    domain = NULL
+  )
+)
 ```
 
 
-The comparison table in Figure 11 highlights how the four variables performed in predicting current measles cases in 2024-2026. Using all 4 predictor variables best predicted case measles using a linear regression model as compared to the random forest model, as indicated by the smaller Mean Absolute Error. This was also the case when only the "Historical Burdens" and "High School Graduation Rates" variables were used as predictors, with a slight improvement in MAE. However, when using the "MMR vaccination means" and "Fraction of Years Below 95% Vaccination" variables, the opposite was true: we see a smaller MAE when using the Random Forest Model as compared to the linear regression model. This indicates the both linear and non-linear variables are impacting the model's ability to predict current case burdens in the U.S. In addition, the Mean Absolute Error is quite high, with the MAE hovering at ~95 cases, indicating that the model is predicting the true burden for these states within a threshold of +/- 95 cases. This is semi-decent for states with high burdens, such as Texas and South Carolina, but for other states with low case burdens this model is not suitable for predictions. This additionally indicates that there are likely other variables that explain the outbreaks currently happening in communities across the United States.
+The comparison table in Table 1 highlights how the four variables performed in predicting current measles cases in 2024-2026. Using all 4 predictor variables best predicted case measles using a linear regression model as compared to the random forest model, as indicated by the smaller Mean Absolute Error. This was also the case when only the "Historical Burdens" and "High School Graduation Rates" variables were used as predictors, with a slight improvement in MAE. However, when using the "MMR vaccination means" and "Fraction of Years Below 95% Vaccination" variables, the opposite was true: we see a smaller MAE when using the Random Forest Model as compared to the linear regression model. This indicates the both linear and non-linear variables are impacting the model's ability to predict current case burdens in the U.S. In addition, the Mean Absolute Error is quite high, with the MAE hovering at ~95 cases, indicating that the model is predicting the true burden for these states within a threshold of +/- 95 cases. This is semi-decent for states with high burdens, such as Texas and South Carolina, but for other states with low case burdens this model is not suitable for predictions. This additionally indicates that there are likely other variables that explain the outbreaks currently happening in communities across the United States.
 
 ```{r}
 #| figure: recent peak measles cases versus historical peak measles burden
@@ -370,9 +413,9 @@ The comparison table in Figure 11 highlights how the four variables performed in
 # Discussion
 The results of this analysis reinforce the well-established relationship between vaccination coverage and measles incidence [@shattock2024]. The overall decline in reported cases over time aligns with the introduction and widespread adoption of the measles vaccine, demonstrating its effectiveness as a public health intervention. However, the presence of periodic increases in case counts suggests that measles has not been fully eliminated as a public health concern within the United States.
 
-The data patterns observed in this study start to support the idea that even small reductions in vaccination coverage can lead to disproportionately large increases in outbreak risk due to the highly contagious nature of measles. In particular, localized spikes in cases may reflect areas where herd immunity thresholds are not consistently maintained.
+The data patterns observed in this study start to support the idea that even small reductions in vaccination coverage can lead to disproportionately large increases in outbreak risk due to the highly contagious nature of measles. In particular, localized spikes in cases may reflect areas where herd immunity thresholds are not consistently maintained. We also found it quite curious that the linear regression model was a better fit for predictive factors like historical measles burden and educational attainment, whereas the Random Forest model fit better for MMR vaccination variables. This emphasizes the need to fully consider all variables in your model, and to consider deeper models when combining a multitude of factors to predict an outcome.
 
-It is also important to consider limitations in the data and analysis. Reported case counts may be influenced by changes in surveillance practices, reporting accuracy, and public health infrastructure over time [@klose2024]. Additionally, this analysis is primarily descriptive and does not establish causal relationships between vaccination rates and measles incidence. More advanced modeling approaches could further clarify these relationships and account for confounding variables such as demographic shifts and access to healthcare.
+It is also important to consider limitations in the data and analysis. Reported case counts may be influenced by changes in surveillance practices, reporting accuracy, and public health infrastructure over time [@klose2024]. As well, these data sets were combined post-collection, meaning that the same participants who were surveyed for educational attainment are not the same individuals being screened for vaccination status. This makes interpretations of trends much more difficult to fully interpret, but our preliminary investigations propose that a larger, more comprehensive study surveying the same individuals for these factors and measles vaccination could strengthen our initial findings. In the same vein, this study did not look at other factors that could have a larger influence on measles incidence and/or MMR vaccination rates, such as age, sex, political beliefs and religious affiliation. Additionally, this analysis is primarily descriptive and does not establish causal relationships between vaccination rates and measles incidence. More advanced modeling approaches could further clarify these relationships and account for confounding variables such as demographic shifts and access to healthcare. 
 
 Despite these limitations, the observed trends provide meaningful insight into the dynamics of measles transmission in a post-vaccination context. The findings emphasize that maintaining high vaccination coverage is essential not only for preventing individual cases but also for protecting population-level immunity.
 
